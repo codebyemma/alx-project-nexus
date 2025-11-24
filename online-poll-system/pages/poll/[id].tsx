@@ -10,6 +10,7 @@ export default function PollDetail() {
   const [poll, setPoll] = useState<any>(null)
   const [selected, setSelected] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [statusLoading, setStatusLoading] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -38,13 +39,60 @@ export default function PollDetail() {
     setLoading(false)
   }
 
+  const toggleStatus = async () => {
+    if (!poll) return
+    setStatusLoading(true)
+    const nextStatus = poll.status === 'active' ? 'closed' : 'active'
+    try {
+      const res = await fetch(`/api/polls/${poll.id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus }),
+      })
+      if (!res.ok) throw new Error('Failed')
+      const updated = await res.json()
+      setPoll(updated)
+      if (nextStatus === 'closed') setSelected(null)
+    } catch (err) {
+      alert('Unable to update poll status')
+    }
+    setStatusLoading(false)
+  }
+
   if (!poll) return (<><Header /><main style={{ padding: 32 }}>Loading poll…</main></>)
 
   return (
     <>
       <Header />
       <main style={{ padding: 32 }}>
-        <h2>{poll.question}</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <h2 style={{ margin: 0 }}>{poll.question}</h2>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span style={{
+              background: poll.status === 'active' ? '#D1FAE5' : '#FEE2E2',
+              color: poll.status === 'active' ? '#065F46' : '#991B1B',
+              padding: '6px 10px',
+              borderRadius: 999,
+              fontSize: 13,
+              fontWeight: 600
+            }}>
+              {poll.status === 'active' ? 'Active' : 'Closed'}
+            </span>
+            <button
+              onClick={toggleStatus}
+              disabled={statusLoading}
+              style={{
+                padding: '8px 12px',
+                borderRadius: 8,
+                border: '1px solid #E5E7EB',
+                background: 'white',
+                cursor: statusLoading ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {poll.status === 'active' ? 'Close Poll' : 'Reopen Poll'}
+            </button>
+          </div>
+        </div>
         <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 720 }}>
           {poll.options.map((o: any) => (
             <label key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 8, border: '1px solid #E5E7EB' }}>
@@ -53,9 +101,14 @@ export default function PollDetail() {
             </label>
           ))}
           <div style={{ display: 'flex', gap: 12 }}>
-            <button onClick={submit} disabled={!selected || loading} style={{ background: 'linear-gradient(90deg,#7C3AED,#3A7AFE)', color: 'white', padding: '10px 14px', borderRadius: 8 }}>Submit Vote</button>
+            <button onClick={submit} disabled={!selected || loading || poll.status === 'closed'} style={{ background: (!selected || loading || poll.status === 'closed') ? '#D1D5DB' : 'linear-gradient(90deg,#7C3AED,#3A7AFE)', color: 'white', padding: '10px 14px', borderRadius: 8 }}>
+              {poll.status === 'closed' ? 'Poll Closed' : 'Submit Vote'}
+            </button>
             <Link href={`/poll/${id}/results`} style={{ border: '1px solid #E5E7EB', padding: '10px 14px', borderRadius: 8, textDecoration: 'none', color: 'inherit', display: 'inline-block' }}>View Results</Link>
           </div>
+          {poll.status === 'closed' && (
+            <p style={{ fontSize: 14, color: '#6B7280' }}>This poll is closed. Reopen it to accept more votes.</p>
+          )}
         </div>
       </main>
     </>

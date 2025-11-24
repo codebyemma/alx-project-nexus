@@ -11,12 +11,15 @@ const Home: NextPage = () => {
   const polls = useAppSelector((s) => s.polls.list)
   const loading = useAppSelector((s) => s.polls.loading)
   const [query, setQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>('all')
 
   useEffect(() => {
     dispatch(fetchPolls())
   }, [dispatch])
 
-  const filtered = polls.filter(p => p.question.toLowerCase().includes(query.toLowerCase()))
+  const filtered = polls
+    .filter(p => p.question.toLowerCase().includes(query.toLowerCase()))
+    .filter(p => statusFilter === 'all' ? true : p.status === statusFilter)
 
   return (
     <>
@@ -27,14 +30,37 @@ const Home: NextPage = () => {
           <p style={{ marginTop: 8, marginBottom: 0, opacity: 0.95 }}>Join the conversation! Vote on trending polls or create your own to gather opinions from the community.</p>
         </section>
 
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search polls..." style={{
             flex: 1,
+            minWidth: 220,
             padding: '12px 16px',
             borderRadius: 10,
             border: '1px solid #E5E7EB'
           }} />
-          <button style={{ padding: '10px 12px', borderRadius: 10, border: '1px solid #E5E7EB', background: 'white' }}>All Polls</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {[
+              { label: 'All', value: 'all' },
+              { label: 'Active', value: 'active' },
+              { label: 'Closed', value: 'closed' },
+            ].map((filter) => (
+              <button
+                key={filter.value}
+                onClick={() => setStatusFilter(filter.value as typeof statusFilter)}
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: 999,
+                  border: statusFilter === filter.value ? '1px solid #C7D2FE' : '1px solid #E5E7EB',
+                  background: statusFilter === filter.value ? '#EEF2FF' : 'white',
+                  color: statusFilter === filter.value ? '#111827' : '#4B5563',
+                  fontWeight: statusFilter === filter.value ? 600 : 500,
+                  cursor: 'pointer'
+                }}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div style={{ color: '#374151', marginBottom: 8 }}>Showing {filtered.length} polls</div>
