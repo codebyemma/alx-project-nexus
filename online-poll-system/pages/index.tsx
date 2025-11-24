@@ -1,78 +1,50 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { NextPage } from 'next'
+import React, { useEffect, useState } from 'react'
+import Header from '../components/Header'
+import PollCard from '../components/PollCard'
+import { useAppDispatch, useAppSelector } from '../hooks'
+import { fetchPolls } from '../store/pollsSlice'
+import styles from '../styles/Home.module.css'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const Home: NextPage = () => {
+  const dispatch = useAppDispatch()
+  const polls = useAppSelector((s) => s.polls.list)
+  const loading = useAppSelector((s) => s.polls.loading)
+  const [query, setQuery] = useState('')
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  useEffect(() => {
+    dispatch(fetchPolls())
+  }, [dispatch])
 
-export default function Home() {
+  const filtered = polls.filter(p => p.question.toLowerCase().includes(query.toLowerCase()))
+
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black`}
-    >
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the index.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <Header />
+      <main style={{ padding: '24px 48px' }}>
+        <section style={{ background: 'linear-gradient(90deg,#7C3AED,#3A7AFE)', color: 'white', borderRadius: 12, padding: 24, marginBottom: 16 }}>
+          <h2 style={{ margin: 0 }}>Discover & Vote</h2>
+          <p style={{ marginTop: 8, marginBottom: 0, opacity: 0.95 }}>Join the conversation! Vote on trending polls or create your own to gather opinions from the community.</p>
+        </section>
+
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16 }}>
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search polls..." style={{
+            flex: 1,
+            padding: '12px 16px',
+            borderRadius: 10,
+            border: '1px solid #E5E7EB'
+          }} />
+          <button style={{ padding: '10px 12px', borderRadius: 10, border: '1px solid #E5E7EB', background: 'white' }}>All Polls</button>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs/pages/getting-started?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div style={{ color: '#374151', marginBottom: 8 }}>Showing {filtered.length} polls</div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 20 }}>
+          {loading ? <div>Loading...</div> : filtered.map(p => <PollCard key={p.id} poll={p} />)}
         </div>
       </main>
-    </div>
-  );
+    </>
+  )
 }
+
+export default Home
