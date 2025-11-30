@@ -1,6 +1,6 @@
 # Online Poll System
 
-A simple, full-stack web app for creating polls, voting, and viewing results. Built with Next.js (Pages Router) and an in-memory data store for quick iteration.
+A simple, web app for creating polls, voting, and viewing results. Built with Next.js (Pages Router) and an in-memory data store for quick iteration.
 
 ## What This Builds
 
