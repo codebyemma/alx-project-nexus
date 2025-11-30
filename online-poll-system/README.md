@@ -1,40 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Online Poll System
 
-## Getting Started
+A simple, full-stack web app for creating polls, voting, and viewing results. Built with Next.js (Pages Router) and an in-memory data store for quick iteration.
 
-First, run the development server:
+## What This Builds
+
+- Create a poll with a question and multiple options.
+- Share and vote on active polls.
+- Toggle poll status between `active` and `closed`.
+- View results as bar or pie charts.
+- Filter and search polls on the homepage.
+
+## Tech Stack
+
+- Next.js (Pages Router)
+- React
+- Minimal Redux Toolkit usage for client state
+- In-memory store for API routes (no external DB)
+
+## Install From GitHub
 
 ```bash
+# 1) Clone the repository
+git clone https://github.com/your-username/alx-project-nexus.git
+
+# 2) Enter the project and app folder
+cd alx-project-nexus/online-poll-system
+
+# 3) Install dependencies
+npm install
+# or: yarn install / pnpm install / bun install
+
+# 4) Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# 5) Open the app
+# visit http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## App Routes
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+- `/` — Browse, search, and filter polls.
+- `/create` — Create a new poll.
+- `/poll/[id]` — Vote on a poll.
+- `/poll/[id]/results` — View results (bar or pie chart).
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## API Endpoints
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+- `GET /api/polls` — List polls.
+- `POST /api/polls` — Create poll `{ question, options[] }`.
+- `POST /api/polls/:id/vote` — Vote `{ optionId }`.
+- `PATCH /api/polls/:id/status` — Set status `{ status: 'active'|'closed' }`.
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Note: Data is stored in memory for development; restarting the dev server resets it.
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+online-poll-system/
+  components/        # UI components (e.g., Header, PollCard)
+  lib/               # In-memory data store and helpers
+  pages/             # Pages and API routes
+  store/             # Client-side state (Redux Toolkit)
+  styles/            # Global styles
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev` — Start the dev server.
+- `npm run build` — Production build.
+- `npm run start` — Run production build.
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+Build with `npm run build` and host the `.next` output with any Node-friendly platform. Vercel works out of the box.
